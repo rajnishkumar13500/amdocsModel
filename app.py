@@ -198,6 +198,29 @@ class CourseRecommender:
                         'current_level': skill_levels.get('skill_react', 0),
                         'difficulty': 'advanced'
                     })
+            
+            elif career_goal == 'Digital Marketing':
+                if skill_levels.get('skill_social media', 0) < 60:
+                    recommended_courses.append('Social Media Marketing Fundamentals')
+                    skill_gaps.append({
+                        'skill': 'social_media',
+                        'current_level': skill_levels.get('skill_social media', 0),
+                        'difficulty': 'beginner'
+                    })
+                if skill_levels.get('skill_seo', 0) < 60:
+                    recommended_courses.append('Search Engine Optimization (SEO)')
+                    skill_gaps.append({
+                        'skill': 'seo',
+                        'current_level': skill_levels.get('skill_seo', 0),
+                        'difficulty': 'intermediate'
+                    })
+                if skill_levels.get('skill_analytics', 0) < 60:
+                    recommended_courses.append('Digital Marketing Analytics')
+                    skill_gaps.append({
+                        'skill': 'analytics',
+                        'current_level': skill_levels.get('skill_analytics', 0),
+                        'difficulty': 'advanced'
+                    })
 
             return {
                 'predicted_success_rate': float(predicted_success),
@@ -250,12 +273,31 @@ def get_recommendations():
             'platform_visits_per_week', 'engagement_score'
         ]
         
+        # Validate career goal
+        valid_career_goals = ['Data Science', 'Web Development', 'Digital Marketing']
+        if user_data.get('career_goal') not in valid_career_goals:
+            return jsonify({
+                'status': 'error',
+                'message': f'Invalid career goal. Must be one of: {", ".join(valid_career_goals)}'
+            }), 400
+        
         for field in required_fields:
             if field not in user_data:
                 return jsonify({
                     'status': 'error',
                     'message': f'Missing required field: {field}'
                 }), 400
+
+        # Ensure all skill fields exist with default values
+        skill_fields = [
+            'skill_python', 'skill_statistics', 'skill_machine learning',
+            'skill_html_css', 'skill_javascript', 'skill_react',
+            'skill_social media', 'skill_seo', 'skill_analytics'
+        ]
+        
+        for skill in skill_fields:
+            if skill not in user_data:
+                user_data[skill] = 0
 
         # Add empty course history if not provided
         if 'course_history' not in user_data:
